@@ -17,12 +17,6 @@ class FFPhotoTableViewCell: UITableViewCell, FFCellProtocol {
     @IBOutlet weak var photoImageView: UIImageView!
     @IBOutlet weak var photoTitleLabel: UILabel!
     
-    // MARK: - FlickrCellProtocol
-    
-    static func cellIdentifier() -> String {
-        return "FFPhotoTableViewCell"
-    }
-    
     override func prepareForReuse() {
         photoImageView.image = nil
         super.prepareForReuse()

@@ -43,8 +43,7 @@ class FFFRCTableViewDataSource<T, CellType:FFCellProtocol>: NSObject, UITableVie
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cellClass = CellType.cellIdentifier()
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellClass)
+        let cell = tableView.dequeueReusableCellWithIdentifier(CellType.cellReuseIdentifier())
         let model = self.fetchedResultsController.objectAtIndexPath(indexPath)
         
         if let cellSetupHandler = cellSetupHandler {

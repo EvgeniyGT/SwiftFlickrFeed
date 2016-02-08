@@ -7,7 +7,14 @@
 //
 
 import Foundation
+import UIKit
 
-protocol FFCellProtocol {
-    static func cellIdentifier() -> String
+protocol FFCellProtocol: class  {
+    static func cellReuseIdentifier() ->  String
+}
+
+extension FFCellProtocol {
+    static func cellReuseIdentifier() ->  String {
+        return String(self)
+    }
 }
