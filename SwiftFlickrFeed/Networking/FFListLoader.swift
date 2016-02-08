@@ -8,10 +8,9 @@
 
 import Foundation
 import EasyMapping
+import PromiseKit
 
 class FFListLoader<T:EKManagedObjectModel> {
-    
-    typealias ListLoaderCompletionHandler = ((result: FFLoadedResult) -> ())
     
     // MARK: - Variables
     
@@ -27,33 +26,29 @@ class FFListLoader<T:EKManagedObjectModel> {
     
     // MARK: - Public
     
-    func loadList(apiPath: String, completionHandler: ListLoaderCompletionHandler?) {
-        self.requestManager.getRequest(WithEndPoint: apiPath, parameters: nil) { (response) -> () in
-            
-            guard response.result.isSuccess else {
-                completionHandler?(result: FFLoadedResult.FFLoadedResultAPIError(error: response.result.error))
-                return
-            }
-            
-            guard let resultDict = response.result.value as? Dictionary<String, AnyObject> else {
-                completionHandler?(result: FFLoadedResult.FFLoadedResultParsingError)
-                return
-            }
-            
-            guard let resultArray = resultDict[self.mapper.primaryKey]?[self.mapper.secondaryKey] as? [AnyObject] else {
-                completionHandler?(result: FFLoadedResult.FFLoadedResultParsingError)
-                return
-            }
-            
-            self.mapper.mapObjects(resultArray, completion: { mappingError in
-                dispatch_async(dispatch_get_main_queue()) {
+    func loadList(apiPath: String)-> Promise<Bool> {
+        return Promise { fulfill, reject in
+            self.requestManager.getRequest(WithEndPoint: apiPath, parameters: nil) { (response) -> () in
+                guard response.result.isSuccess else {
+                    reject(FFLoaderError.FFLoaderAPIError(error: response.result.error))
+                    return
+                }
+                guard let resultDict = response.result.value as? Dictionary<String, AnyObject> else {
+                    reject(FFLoaderError.FFLoaderParsingError)
+                    return
+                }
+                guard let resultArray = resultDict[self.mapper.primaryKey]?[self.mapper.secondaryKey] as? [AnyObject] else {
+                    reject(FFLoaderError.FFLoaderParsingError)
+                    return
+                }
+                self.mapper.mapObjects(resultArray, completion: { mappingError in
                     guard (mappingError == nil) else {
-                        completionHandler?(result: FFLoadedResult.FFLoadedResultContextSaveError)
+                        reject(FFLoaderError.FFMapperContextSaveError)
                         return
                     }
-                    completionHandler?(result: FFLoadedResult.FFLoadedResultOK)
-                }
-            })
+                    fulfill(true)
+                })
+            }
         }
     }
 }

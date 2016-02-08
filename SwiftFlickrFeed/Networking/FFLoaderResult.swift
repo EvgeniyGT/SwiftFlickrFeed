@@ -8,24 +8,21 @@
 
 import Foundation
 
-enum FFLoadedResult {
+enum FFLoaderError: ErrorType {
     
-    case FFLoadedResultOK
-    case FFLoadedResultParsingError
-    case FFLoadedResultContextSaveError
-    case FFLoadedResultAPIError(error: NSError?)
+    case FFLoaderParsingError
+    case FFLoaderAPIError(error: NSError?)
+    case FFMapperContextSaveError
     
     // MARK: - Variables
     
     var resultMessage: String {
         switch self {
-        case .FFLoadedResultOK:
-            return NSLocalizedString("Everything is OK", comment: "")
-        case .FFLoadedResultParsingError:
+        case .FFLoaderParsingError:
             return NSLocalizedString("Parsing Error", comment: "")
-        case .FFLoadedResultContextSaveError:
+        case .FFMapperContextSaveError:
             return NSLocalizedString("Data Save Error", comment: "")
-        case .FFLoadedResultAPIError(let error):
+        case .FFLoaderAPIError(let error):
             guard let apiError = error else {
                 return NSLocalizedString("API Error", comment: "")
             }

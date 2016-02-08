@@ -17,6 +17,7 @@ class FFListViewController: UIViewController {
     // MARK: - Variables
     
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var indicatorView: UIActivityIndicatorView!
     
     var coreDataStack: CoreDataStack!
     private var loader: FFListLoader<FFPhoto>!
@@ -87,12 +88,16 @@ class FFListViewController: UIViewController {
             NSException(name:NSInternalInconsistencyException, reason:"Incorrect End Point", userInfo:nil).raise()
             return
         }
-        
-        loader.loadList(path) { (result: FFLoadedResult) -> () in
-            switch result {
-            case .FFLoadedResultOK: print("List Loaded")
-            default:
-                let alert = UIAlertController(title: "Error", message: result.resultMessage, preferredStyle: .Alert)
+        indicatorView.startAnimating()
+        loader.loadList(path).then { loadedResult -> Void in
+            
+        }.always {
+            self.indicatorView.stopAnimating()
+        }.error { error in
+            if let loaderError = error as? FFLoaderError {
+                let alert = UIAlertController(title: "Error", message: loaderError.resultMessage, preferredStyle: .Alert)
+                let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .Cancel) { action -> Void in}
+                alert.addAction(cancelAction)
                 self.presentViewController(alert, animated: true, completion: nil)
             }
         }
